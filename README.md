@@ -1,3 +1,3 @@
 ## Concurrent-server
 
-Writing a concurrent server in C:)
+Writing a concurrent server in C.
