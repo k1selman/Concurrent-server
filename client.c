@@ -3,7 +3,7 @@
 
 int main(int argc, char **argv)
 {
-/* Before using ENet, we have to initialize the library */
+    /* Before using ENet, we have to initialize the library */
     if(enet_initialize() != 0)
     {
         fprintf(stderr, "An error occured while initializing ENet.\n");
@@ -71,4 +71,46 @@ int main(int argc, char **argv)
         enet_peer_reset(peer);
         puts("Connection to HereGoesTheServer:1234 failed.\n");
     }
+
+
+    /* Loop */
+
+    /* 
+    enet_host_service parameters: ENetHost *host, ENetEvent *event, enet_uint32 timeout 
+    host is a host to a service,
+    event is an event structure where event details will be placed (if occurs), if event is NULL then no events will be delivered
+    timeout is a number of milliseconds that ENet should wait for events
+    */
+
+    /* Wait up 1 second for an event*/
+    while(enet_host_service(client, &event, 1000) > 0)
+    {
+        switch(event.type)
+        {
+        case ENET_EVENT_TYPE_RECEIVE:
+            printf("A packet of length %u containing %s was received from %s on channel %u.\n",
+            event.packet -> dataLength,
+            event.packet -> data,
+            event.peer -> data,
+            event.channelID);
+        break;
+        }
+    }
+
+    enet_peer_disconnect(peer, 0);
+
+    while(enet_host_service(client, &event, 3000) > 0)
+    {
+        switch(event.type)
+        {
+            case ENET_EVENT_TYPE_RECEIVE:
+                enet_packet_destroy(event.packet);
+            break;
+            case ENET_EVENT_TYPE_DISCONNECT:
+                puts("Disconnected.");
+            break;
+        }
+    }
+
+    return EXIT_SUCCESS;
 }
